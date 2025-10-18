@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+trước khi push lên git luôn hỏi tôi
+luôn bỏ file .env ra khỏi lệnh push git
