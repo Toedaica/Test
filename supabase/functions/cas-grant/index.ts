@@ -7,17 +7,31 @@ import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 serve(async (req: Request) => {
   try {
-    if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405 });
+    if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method Not Allowed' }), { status: 405, headers: { 'Content-Type': 'application/json' } });
 
     const auth = req.headers.get('authorization') || req.headers.get('Authorization');
-    if (!auth) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    if (!auth) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
 
     const { scopes = 'transaction', language = 'vi', redirectUri } = await req.json();
 
     const base = Deno.env.get('CAS_BASE_URL');
     const clientId = Deno.env.get('CAS_CLIENT_ID');
     const secretKey = Deno.env.get('CAS_SECRET_KEY');
-    if (!base || !clientId || !secretKey) return new Response(JSON.stringify({ error: 'Server not configured' }), { status: 500 });
+    if (!base || !clientId || !secretKey) {
+      return new Response(
+        JSON.stringify({
+          error: 'Server not configured',
+          details: {
+            env: {
+              CAS_BASE_URL: !!base,
+              CAS_CLIENT_ID: !!clientId,
+              CAS_SECRET_KEY: !!secretKey,
+            },
+          },
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
 
     const res = await fetch(`${base}/grant/token`, {
       method: 'POST',
@@ -30,15 +44,17 @@ serve(async (req: Request) => {
       body: JSON.stringify({ scopes, language, redirectUri }),
     });
 
-    const data = await res.json();
-    if (!res.ok) return new Response(JSON.stringify({ error: data?.error || res.statusText, details: data }), { status: res.status, headers: { 'Content-Type': 'application/json' } });
+    const raw = await res.text();
+    let data: any = null;
+    try { data = raw ? JSON.parse(raw) : null; } catch {}
+    if (!res.ok) return new Response(JSON.stringify({ error: data?.error || res.statusText || 'CAS upstream error', details: data ?? raw }), { status: res.status, headers: { 'Content-Type': 'application/json' } });
 
     return new Response(JSON.stringify({ grantToken: data.grantToken, casLinkUrl: data.casLinkUrl || `${base}/link?grant=${data.grantToken}` }), {
       headers: { 'Content-Type': 'application/json' },
       status: 200,
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message || 'Internal error' }), { status: 500 });
+    return new Response(JSON.stringify({ error: e?.message || 'Internal error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 });
 
