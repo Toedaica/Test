@@ -1,0 +1,45 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'supabase/functions/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy cas-grant
+        run: supabase functions deploy cas-grant --project-ref ${{ env.PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_ID: udtmzvddicwzlkvkhunm
+
+      - name: Deploy cas-exchange
+        run: supabase functions deploy cas-exchange --project-ref ${{ env.PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_ID: udtmzvddicwzlkvkhunm
+
+      - name: Deploy cas-save-token
+        run: supabase functions deploy cas-save-token --project-ref ${{ env.PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_ID: udtmzvddicwzlkvkhunm
+
+      - name: Deploy cas-sync
+        run: supabase functions deploy cas-sync --project-ref ${{ env.PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PROJECT_ID: udtmzvddicwzlkvkhunm
+
+
