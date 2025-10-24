@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "test",
+    "name": "Fisa – Coach tài chính cá nhân",
     "slug": "test",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.truongducanh.fisaapp",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng sử dụng camera để quét sao kê.",
+        "NSPhotoLibraryUsageDescription": "Ứng dụng cần truy cập ảnh để chọn sao kê.",
+        "NSPhotoLibraryAddUsageDescription": "Ứng dụng có thể lưu ảnh kết quả.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +27,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ],
+      "package": "com.truongducanh.fisaapp"
     },
     "web": {
       "output": "static",
@@ -27,6 +41,8 @@
     },
     "plugins": [
       "expo-router",
+      "expo-camera",
+      "expo-image-picker",
       [
         "expo-splash-screen",
         {
@@ -48,7 +64,19 @@
           "mode": "production"
         }
       ],
-      "expo-barcode-scanner"
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1",
+            "useFrameworks": "static",
+            "swiftVersion": "5.9"
+          },
+          "android": {
+            "kotlinVersion": "1.9.23"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
